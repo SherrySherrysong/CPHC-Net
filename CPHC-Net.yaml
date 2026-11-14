@@ -1,0 +1,50 @@
+backbone:
+  # [from, module, args]
+  - [-1,Conv,[64,3,2]]  #0
+  - [-1,Conv,[128,3,2]] #1-P1/2
+  - [-1,PDAF,[128,1,0]]
+  - [-1,Conv,[192,3,2]]  # 3-P3/8
+  - [-1,PDAF,[192,1,1]]
+  - [-1,Conv,[256,3,2]]  # 5-P4/16
+  - [-1,PDAF,[256,1,2]]
+  - [-1,Conv,[384,3,2]]  # 7-P5/32
+  - [-1,PDAF,[384,3,3]]
+
+encoder:
+  - [4, MCE, [192]] # 9-P3/8
+  - [6, MCE, [192]] # 10-P4/16
+  - [8, MCE, [192]] # 11-P5/32
+
+  - [[9, 10, 11], HCA, [192, 1,11, True, True]] # 12-P4
+  - [-1, nn.Upsample, [None, 2, "nearest"]] # 13-p3
+  - [12, DownsampleConv, []]                 # 14-p5
+
+  - [[9, 13], FullPAD_Tunnel, []]            # 15-p3
+  - [[10, 12], FullPAD_Tunnel, []]           # 16-p4
+  - [[11, 14], FullPAD_Tunnel, []]           # 17-p5
+
+  - [-1, ConvNormLayer_fuse, [192, 1, 1]]    # 18-p5
+  - [-1, nn.Upsample, [None, 2, "nearest"]]  # 19-p4
+  - [[-1, 16], Concat, []]                   # 20-p4
+  - [-1, GateNCS, [192, 256, 32, 1, False, 'silu']] # 21-p4
+  - [[-1, 12], FullPAD_Tunnel, []]           # 22
+
+  - [-1, ConvNormLayer_fuse, [192, 1, 1]]    # 23
+  - [-1, nn.Upsample, [None, 2, "nearest"]]  # 24
+  - [[-1, 15], Concat, []]                   # 25
+  - [-1, GateNCS, [192, 256, 32, 1, False, 'silu']] # 26
+  - [[-1, 13], FullPAD_Tunnel, []]           # 27
+
+  - [-1, SCDown, [192, 3, 2, 'silu']]        # 28
+  - [[-1, 23], Concat, []]                   # 29
+  - [-1, GateNCS, [192, 512, 64, 1, False, 'silu']] # 30
+  - [[-1, 12], FullPAD_Tunnel, []]           # 31
+
+  - [-1, SCDown, [192, 3, 2, 'silu']]        # 32
+  - [[-1, 18], Concat, []]                   # 33
+  - [-1, GateNCS, [192, 512, 64, 1, False, 'silu']] # 34
+  - [[-1, 14], FullPAD_Tunnel, []]           # 35
+
+decoder:
+
+  - [[27, 31, 35], DFINETransformer, {"feat_strides":[8, 16, 32], "hidden_dim": 192, "num_levels": 3, "num_layers": 3, "num_points": [3, 6, 3], "dim_feedforward": 1024}]
