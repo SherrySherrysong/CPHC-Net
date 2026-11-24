@@ -73,4 +73,4 @@ Evaluation prints COCO bounding-box AP, AP50, and AP75 and writes `pred.json` an
 
 If you use this code, please cite the manuscript by Wanru Song, Haopeng Zhang, Yuhao Li, Tong He, Chuanyan Hao, and Huaruo Chen, *CPHC-Net: Robust Student Behavior Recognition in Smart Classrooms Using a Convergent Positional and Hyper-Contextual Network*.
 
-The training code draws on [DEIM](https://github.com/ShihuaHuang95/DEIM), [D-FINE](https://github.com/Peterande/D-FINE), and [RT-DETR](https://github.com/lyuwenyu/RT-DETR). The upstream DEIM license is included in [`LICENSE-DEIM`](LICENSE-DEIM).
+The training code draws on [DEIM](https://github.com/ShihuaHuang95/DEIM), [D-FINE](https://github.com/Peterande/D-FINE), and [RT-DETR](https://github.com/lyuwenyu/RT-DETR).
