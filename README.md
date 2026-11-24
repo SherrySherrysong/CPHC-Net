@@ -69,8 +69,6 @@ Evaluation prints COCO bounding-box AP, AP50, and AP75 and writes `pred.json` an
 
 [engine/extre_module/tasks.py](engine/extre_module/tasks.py) resolves the layer names and assembles the model. The shared training config [configs/cphc_net.yml](configs/cphc_net.yml) selects the architecture through `DEIM_MG.yaml_path`. Keep the input size at 640 × 640 to match the PDAF positional embeddings.
 
-## Citation and acknowledgements
-
-If you use this code, please cite the manuscript by Wanru Song, Haopeng Zhang, Yuhao Li, Tong He, Chuanyan Hao, and Huaruo Chen, *CPHC-Net: Robust Student Behavior Recognition in Smart Classrooms Using a Convergent Positional and Hyper-Contextual Network*.
+## Acknowledgements
 
 The training code draws on [DEIM](https://github.com/ShihuaHuang95/DEIM), [D-FINE](https://github.com/Peterande/D-FINE), and [RT-DETR](https://github.com/lyuwenyu/RT-DETR).
