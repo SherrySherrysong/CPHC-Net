@@ -1,0 +1,13 @@
+einops
+faster-coco-eval>=1.6.5
+matplotlib
+numpy<2
+opencv-python<4.12
+packaging
+Pillow
+prettytable
+psutil
+PyYAML
+scipy
+tensorboard
+tqdm

@@ -1,0 +1,14 @@
+__include__: [cphc_net.yml]
+
+num_classes: 6
+output_dir: ./outputs/smartclassroom-u
+
+train_dataloader:
+  dataset:
+    img_folder: data/smartclassroom-u/train/images
+    ann_file: data/smartclassroom-u/train/annotations/train.json
+
+val_dataloader:
+  dataset:
+    img_folder: data/smartclassroom-u/val/images
+    ann_file: data/smartclassroom-u/val/annotations/val.json

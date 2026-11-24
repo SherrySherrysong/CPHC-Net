@@ -1,0 +1,90 @@
+__include__:
+  - runtime.yml
+  - base/optimizer.yml
+  - base/deim.yml
+
+task: detection
+model: DEIM_MG
+criterion: DEIMCriterion
+postprocessor: PostProcessor
+use_focal_loss: true
+eval_spatial_size: [640, 640]
+output_dir: ./outputs/cphc_net
+
+DEIM_MG:
+  yaml_path: CPHC-Net.yaml
+
+PostProcessor:
+  num_top_queries: 300
+
+DEIMCriterion:
+  alpha: 0.75
+  reg_max: 32
+  matcher:
+    type: HungarianMatcher
+    weight_dict: {cost_class: 2, cost_bbox: 5, cost_giou: 2}
+    alpha: 0.25
+    gamma: 2.0
+
+remap_mscoco_category: false
+evaluator:
+  type: CocoEvaluator
+  iou_types: [bbox]
+
+epoches: 300
+flat_epoch: 154
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+optimizer:
+  type: AdamW
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.001
+  params:
+    - {params: '^backbone\.(?!.*(?:norm|bn|bias)).*$', lr: 0.0004}
+    - {params: '^backbone\..*(?:norm|bn|bias).*$', lr: 0.0004, weight_decay: 0.0}
+    - {params: '^(?:encoder|decoder)\..*(?:norm|bn|bias|\.context\.transform\.1\.).*$', weight_decay: 0.0}
+
+train_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    return_masks: false
+    transforms:
+      type: Compose
+      policy:
+        name: stop_epoch
+        epoch: [4, 154, 258]
+        ops: ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop', 'RandomHorizontalFlip']
+        stages:
+          - ['RandomHorizontalFlip']
+          - ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop', 'RandomHorizontalFlip']
+          - ['Mosaic', 'RandomZoomOut', 'RandomIoUCrop', 'RandomHorizontalFlip']
+          - []
+  shuffle: true
+  num_workers: 4
+  drop_last: true
+  pin_memory: true
+  total_batch_size: 4
+  collate_fn:
+    type: BatchImageCollateFunction
+    base_size: 640
+    base_size_repeat: null
+    mixup_epochs: [4, 154]
+    stop_epoch: 258
+    ema_restart_decay: 0.9999
+
+val_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    return_masks: false
+    transforms:
+      type: Compose
+  shuffle: false
+  drop_last: false
+  num_workers: 4
+  total_batch_size: 4
+  collate_fn:
+    type: BatchImageCollateFunction

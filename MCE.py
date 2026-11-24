@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .utils import get_activation
+from PDAF import get_activation
 
 
 __all__ = ["MCE"]
@@ -51,17 +51,19 @@ class ConvNormLayer_fuse(nn.Module):
         return self.act(y)
 
     def convert_to_deploy(self):
-        if not hasattr(self, "conv_bn_fused"):
-            self.conv_bn_fused = nn.Conv2d(
-                self.ch_in,
-                self.ch_out,
-                self.kernel_size,
-                self.stride,
-                groups=self.g,
-                padding=self.padding,
-                bias=True,
-                dilation=self.d,
-            )
+        if hasattr(self, "conv_bn_fused"):
+            return
+
+        self.conv_bn_fused = nn.Conv2d(
+            self.ch_in,
+            self.ch_out,
+            self.kernel_size,
+            self.stride,
+            groups=self.g,
+            padding=self.padding,
+            bias=True,
+            dilation=self.d,
+        )
 
         kernel, bias = self.get_equivalent_kernel_bias()
         self.conv_bn_fused.weight.data = kernel

@@ -1,63 +1,76 @@
-# CPHC-Net 论文代码 / Paper Modules
-CPHC-Net: Robust Student Behavior Recognition in Smart ClassroomsUsing a Convergent Positional and Hyper-Contextual Network
+# CPHC-Net
 
-We propose a Convergent Positional and Hyper-Contextual Network (CPHC-Net) for scale-adaptive and occlusion-aware student behavior recognition in smart classrooms.
-CPHC-Net adopts D-FINE as baseline and improves its feature representation capability from multi-scale enhancement to high-order contextual modeling. First, a Position-Dominant Adaptive Fusion unit is designed to enable scale-adaptive spatial feature extraction, allowing the backbone to better handle object scale variations in classroom scenes. Then, a Multi-Scale Context Enhancement module is constructed to compensate for high-frequency information loss during feature extraction and provide more informative multi-scale features for subsequent context modeling. Based on the enhanced features, a Hypergraph Contextual Aggregation module is introduced to establish cross-spatial high-order feature relationships. Finally, GateNCS units are employed to refine multi-scale feature fusion and reduce redundant feature channels introduced by global contextual modeling. Experiments on the public classroom behavior datasets SCB03-S and SCB03-U, as well as the self-built SmartClassroom-U dataset, demonstrate that CPHC-Net outperforms mainstream algorithms. Its generalization performance is further verified on a small-object dataset. {\color{red}Moreover, CPHC-Net improves recognition accuracy and inference speed over the D-FINE baseline with slightly fewer parameters.} These results indicate that CPHC-Net provides an effective intelligent recognition approach for student behavior analysis in complex smart classroom environments.
+Code for **CPHC-Net: Robust Student Behavior Recognition in Smart Classrooms Using a Convergent Positional and Hyper-Contextual Network**.
 
-本目录包含 CPHC-Net 的核心模块及网络配置，用于论文实验和完整检测工程集成。
+We propose a Convergent Positional and Hyper-Contextual Network (CPHC-Net) for scale-adaptive and occlusion-aware student behavior recognition in smart classrooms. CPHC-Net adopts D-FINE as baseline and improves its feature representation capability from multi-scale enhancement to high-order contextual modeling. First, a Position-Dominant Adaptive Fusion unit is designed to enable scale-adaptive spatial feature extraction, allowing the backbone to better handle object scale variations in classroom scenes. Then, a Multi-Scale Context Enhancement module is constructed to compensate for high-frequency information loss during feature extraction and provide more informative multi-scale features for subsequent context modeling. Based on the enhanced features, a Hypergraph Contextual Aggregation module is introduced to establish cross-spatial high-order feature relationships. Finally, GateNCS units are employed to refine multi-scale feature fusion and reduce redundant feature channels introduced by global contextual modeling. Experiments on the public classroom behavior datasets SCB03-S and SCB03-U, as well as the self-built SmartClassroom-U dataset, demonstrate that CPHC-Net outperforms mainstream algorithms. Its generalization performance is further verified on a small-object dataset. Moreover, CPHC-Net improves recognition accuracy and inference speed over the D-FINE baseline with slightly fewer parameters. These results indicate that CPHC-Net provides an effective intelligent recognition approach for student behavior analysis in complex smart classroom environments.
 
-This directory contains the core CPHC-Net modules and network configuration for paper experiments and integration into a complete detection framework.
+## Core modules
 
-## 中文
-
-### 文件说明
-
-| 文件 | 说明 |
+| Component | Role |
 | --- | --- |
-| `PDAF.py` | 位置与尺度感知特征增强，包含 `PDAF` 和 `GateNCS`。 |
-| `MCE.py` | 使用不同膨胀率的并行卷积增强上下文信息。 |
-| `HCA.py` | 对三层特征进行超图上下文聚合。 |
-| `CPHC-Net.yaml` | CPHC-Net 的主干、编码器和解码器配置。 |
+| [PDAF](PDAF.py) | Position-Dominant Adaptive Fusion uses scale-specific positional embeddings at feature-map sizes of 160, 80, 40, and 20 pixels per side. |
+| [MCE](MCE.py) | Multi-Scale Context Enhancement enriches each feature level with parallel convolutions at different dilation rates. |
+| [HCA](HCA.py) | Hypergraph Contextual Aggregation combines three feature levels and returns a context-enriched feature at the middle resolution. |
+| [GateNCS](PDAF.py) | Refines the fused encoder features through convolutional aggregation and global-context recalibration. |
 
-### 依赖
+## Installation
 
-- Python 3.10+
-- PyTorch
-- `einops`
-- 完整工程中的 `.utils.get_activation`（供 `MCE.py` 使用）
+The paper used Python 3.10, PyTorch 2.2.2, and an NVIDIA GeForce RTX 4090. Install PyTorch 2.2.2 with its matching torchvision 0.17.2 build for your system. See the [PyTorch installation instructions](https://pytorch.org/get-started/previous-versions/#v222).
 
-### 核心模块
+```bash
+git clone https://github.com/SherrySherrysong/CPHC-Net.git
+cd CPHC-Net
+python -m pip install -r requirements.txt
+```
 
-- `PDAF`：输入和输出均为单层特征图。`scale_index` 对应尺寸为 `0→160×160`、`1→80×80`、`2→40×40`、`3→20×20`。
-- `MCE`：输入 `[B, c1, H, W]`，输出 `[B, c2, H, W]`。
-- `HCA`：输入高、中、低三个尺度的特征列表，输出中间尺度特征。
-- `GateNCS`：用于编码器中的卷积特征聚合与全局上下文增强。
+Run the following commands from the repository root.
 
-`CPHC-Net.yaml` 还依赖完整工程提供的 `Conv`、`DownsampleConv`、`FullPAD_Tunnel`、`SCDown`、`Concat` 和 `DFINETransformer`。使用前需将本目录模块加入工程的模块注册或配置解析逻辑。
+## Dataset preparation
 
-## English
+| Dataset | Classes | Configuration |
+| --- | ---: | --- |
+| SCB03-S, the school-classroom subset of SCB-Dataset3 | 3 | [`configs/scb03-s.yml`](configs/scb03-s.yml) |
+| SCB03-U, the university-classroom subset of SCB-Dataset3 | 6 | [`configs/scb03-u.yml`](configs/scb03-u.yml) |
+| SmartClassroom-U, collected from university classrooms | 6 | [`configs/smartclassroom-u.yml`](configs/smartclassroom-u.yml) |
+| VisDrone2019-DET, for supplementary small-object evaluation | 10 | [`configs/visdrone2019.yml`](configs/visdrone2019.yml) |
 
-### Files
+Download the public datasets from [SCB-Dataset](https://github.com/Whiffe/SCB-dataset) and [VisDrone-Dataset](https://github.com/VisDrone/VisDrone-Dataset). Convert native VisDrone annotations to COCO detection JSON before using its config. The SmartClassroom-U config requires authorized access to the dataset. The paper used an 80/20 split for SmartClassroom-U.
 
-| File | Description |
-| --- | --- |
-| `PDAF.py` | Position- and scale-aware feature enhancement with `PDAF` and `GateNCS`. |
-| `MCE.py` | Context enhancement through parallel convolutions with different dilation rates. |
-| `HCA.py` | Hypergraph contextual aggregation over three feature levels. |
-| `CPHC-Net.yaml` | Backbone, encoder, and decoder configuration for CPHC-Net. |
+Set `img_folder` and `ann_file` for `train_dataloader.dataset` and `val_dataloader.dataset` in the chosen YAML. Use COCO detection JSON with contiguous category IDs starting at `0` and the same category mapping in both splits. For a separate test split, point `val_dataloader.dataset` to its images and JSON when evaluating.
 
-### Requirements
+For YOLO-format data, keep the intended split and place `images/`, `labels/`, and a `classes.txt` listing one class per line in label-ID order under each split directory. The converter treats images without label files as background examples. For example:
 
-- Python 3.10+
-- PyTorch
-- `einops`
-- `.utils.get_activation` from the host project for `MCE.py`
+```bash
+python tools/yolo2coco.py data/scb03-s/train data/scb03-s/train/annotations/train.json
+python tools/yolo2coco.py data/scb03-s/val data/scb03-s/val/annotations/val.json
+```
 
-### Core Modules
+## Training and evaluation
 
-- `PDAF`: processes one feature map. `scale_index` maps to `0→160×160`, `1→80×80`, `2→40×40`, and `3→20×20`.
-- `MCE`: input `[B, c1, H, W]`, output `[B, c2, H, W]`.
-- `HCA`: consumes high-, middle-, and low-resolution feature maps and returns the fused middle-resolution feature.
-- `GateNCS`: performs convolutional feature aggregation and global-context enhancement in the encoder.
+[`configs/cphc_net.yml`](configs/cphc_net.yml) sets the shared training recipe. It starts from randomly initialized weights and uses 640 × 640 inputs, a batch size of 4, and 300 epochs. AdamW uses learning rates of `8e-4` overall and `4e-4` for the backbone, with weight decay `1e-3` and zero decay for normalization parameters and biases. The staged augmentation schedule uses Mosaic and Mixup with probability `0.5` during their active stages. The paper used seeds `0`, `10`, and `20`.
 
-`CPHC-Net.yaml` also requires framework modules such as `Conv`, `DownsampleConv`, `FullPAD_Tunnel`, `SCDown`, `Concat`, and `DFINETransformer`. Register the modules in this directory with the host framework before loading the configuration.
+Train on SCB03-S. Substitute the corresponding dataset config for other datasets and use a separate output directory for each seed.
+
+```bash
+python train.py -c configs/scb03-s.yml --device cuda:0 --seed 0 --output-dir outputs/scb03-s/seed0
+```
+
+Evaluate a checkpoint produced by training. `best_stg1.pth` is the best checkpoint before the final training stage. Use `best_stg2.pth` if training produced it.
+
+```bash
+python train.py -c configs/scb03-s.yml --device cuda:0 --test-only -r outputs/scb03-s/seed0/best_stg2.pth --output-dir outputs/scb03-s/eval
+```
+
+Evaluation prints COCO bounding-box AP, AP50, and AP75 and writes `pred.json` and `eval.pth` to the evaluation directory.
+
+## Model Configuration
+
+[CPHC-Net.yaml](CPHC-Net.yaml) defines the backbone, encoder, and D-FINE decoder for the 192-channel model. PDAF and GateNCS are implemented in [PDAF.py](PDAF.py), MCE in [MCE.py](MCE.py), and HCA in [HCA.py](HCA.py).
+
+[engine/extre_module/tasks.py](engine/extre_module/tasks.py) resolves the layer names and assembles the model. The shared training config [configs/cphc_net.yml](configs/cphc_net.yml) selects the architecture through `DEIM_MG.yaml_path`. Keep the input size at 640 × 640 to match the PDAF positional embeddings.
+
+## Citation and acknowledgements
+
+If you use this code, please cite the manuscript by Wanru Song, Haopeng Zhang, Yuhao Li, Tong He, Chuanyan Hao, and Huaruo Chen, *CPHC-Net: Robust Student Behavior Recognition in Smart Classrooms Using a Convergent Positional and Hyper-Contextual Network*.
+
+The training code draws on [DEIM](https://github.com/ShihuaHuang95/DEIM), [D-FINE](https://github.com/Peterande/D-FINE), and [RT-DETR](https://github.com/lyuwenyu/RT-DETR). The upstream DEIM license is included in [`LICENSE-DEIM`](LICENSE-DEIM).

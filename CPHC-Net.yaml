@@ -1,7 +1,7 @@
 backbone:
   # [from, module, args]
   - [-1,Conv,[64,3,2]]  #0
-  - [-1,Conv,[128,3,2]] #1-P1/2
+  - [-1,Conv,[128,3,2]] # 1-P2/4
   - [-1,PDAF,[128,1,0]]
   - [-1,Conv,[192,3,2]]  # 3-P3/8
   - [-1,PDAF,[192,1,1]]
@@ -16,7 +16,7 @@ encoder:
   - [8, MCE, [192]] # 11-P5/32
 
   - [[9, 10, 11], HCA, [192, 1,11, True, True]] # 12-P4
-  - [-1, nn.Upsample, [None, 2, "nearest"]] # 13-p3
+  - [-1, nn.Upsample, [null, 2, "nearest"]] # 13-p3
   - [12, DownsampleConv, []]                 # 14-p5
 
   - [[9, 13], FullPAD_Tunnel, []]            # 15-p3
@@ -24,13 +24,13 @@ encoder:
   - [[11, 14], FullPAD_Tunnel, []]           # 17-p5
 
   - [-1, ConvNormLayer_fuse, [192, 1, 1]]    # 18-p5
-  - [-1, nn.Upsample, [None, 2, "nearest"]]  # 19-p4
+  - [-1, nn.Upsample, [null, 2, "nearest"]]  # 19-p4
   - [[-1, 16], Concat, []]                   # 20-p4
   - [-1, GateNCS, [192, 256, 32, 1, False, 'silu']] # 21-p4
   - [[-1, 12], FullPAD_Tunnel, []]           # 22
 
   - [-1, ConvNormLayer_fuse, [192, 1, 1]]    # 23
-  - [-1, nn.Upsample, [None, 2, "nearest"]]  # 24
+  - [-1, nn.Upsample, [null, 2, "nearest"]]  # 24
   - [[-1, 15], Concat, []]                   # 25
   - [-1, GateNCS, [192, 256, 32, 1, False, 'silu']] # 26
   - [[-1, 13], FullPAD_Tunnel, []]           # 27

@@ -1,0 +1,14 @@
+__include__: [cphc_net.yml]
+
+num_classes: 3
+output_dir: ./outputs/scb03-s
+
+train_dataloader:
+  dataset:
+    img_folder: data/scb03-s/train/images
+    ann_file: data/scb03-s/train/annotations/train.json
+
+val_dataloader:
+  dataset:
+    img_folder: data/scb03-s/val/images
+    ann_file: data/scb03-s/val/annotations/val.json

@@ -1,0 +1,14 @@
+__include__: [cphc_net.yml]
+
+num_classes: 10
+output_dir: ./outputs/visdrone2019
+
+train_dataloader:
+  dataset:
+    img_folder: data/visdrone2019/train/images
+    ann_file: data/visdrone2019/train/annotations/train.json
+
+val_dataloader:
+  dataset:
+    img_folder: data/visdrone2019/val/images
+    ann_file: data/visdrone2019/val/annotations/val.json
